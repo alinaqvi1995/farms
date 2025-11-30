@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\AnimalRequest;
+use App\Models\Animal;
+use App\Services\AnimalService;
+use Illuminate\Support\Facades\Auth;
+
+class AnimalController extends Controller
+{
+    protected $service;
+
+    public function __construct(AnimalService $service)
+    {
+        $this->service = $service;
+
+        // $permissions = [
+        //     'index'   => 'view-animals',
+        //     'store'   => 'create-animals',
+        //     'update'  => 'edit-animals',
+        //     'destroy' => 'delete-animals',
+        // ];
+
+        // foreach ($permissions as $method => $permission) {
+        //     $this->middleware("permission:{$permission}")->only($method);
+        // }
+    }
+
+    public function index()
+    {
+        $animals = $this->service->list();
+        return view('animals.index', compact('animals'));
+    }
+
+    public function show(Animal $animal)
+    {
+        $currentUser = Auth::user();
+
+        // Farm admins can only view animals in their farm
+        if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load related farm if needed
+        $animal->load('farm');
+
+        return view('animals.show', compact('animal'));
+    }
+
+    public function create()
+    {
+        $currentUser = Auth::user();
+
+        // Only super admin or farm admin can create
+        if (!$currentUser->isSuperAdmin() && !$currentUser->isFarmAdmin()) {
+            abort(403);
+        }
+
+        return view('animals.create', [
+            'farms' => $currentUser->isSuperAdmin()
+                ? \App\Models\Farm::all()
+                : \App\Models\Farm::where('id', $currentUser->farm_id)->get()
+        ]);
+    }
+
+    public function store(AnimalRequest $request)
+    {
+        $data = $request->validated();
+        $currentUser = Auth::user();
+
+        // Farm admins can only create in their farm
+        if ($currentUser->isFarmAdmin()) {
+            $data['farm_id'] = $currentUser->farm_id;
+        }
+
+        $this->service->create($data);
+        return redirect()->route('animals.index')->with('success', 'Animal created successfully.');
+    }
+
+    public function edit(Animal $animal)
+    {
+        $currentUser = Auth::user();
+
+        // Farm admin can only edit their own animals
+        if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
+            abort(403);
+        }
+
+        return view('animals.edit', compact('animal'));
+    }
+
+    public function update(AnimalRequest $request, Animal $animal)
+    {
+        $currentUser = Auth::user();
+
+        // Farm admin can only update their own animals
+        if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
+            abort(403);
+        }
+
+        $this->service->update($animal, $request->validated());
+        return redirect()->route('animals.index')->with('success', 'Animal updated successfully.');
+    }
+
+    public function destroy(Animal $animal)
+    {
+        $currentUser = Auth::user();
+
+        // Farm admin can only delete their own animals
+        if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
+            abort(403);
+        }
+
+        $this->service->delete($animal);
+        return redirect()->route('animals.index')->with('success', 'Animal deleted successfully.');
+    }
+}
