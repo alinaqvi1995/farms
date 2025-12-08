@@ -42,30 +42,37 @@ class AnimalController extends Controller
 
         $animal->load('farm', 'milkProductions');
 
-        // === Milk Stats ===
         $today     = now()->toDateString();
         $yesterday = now()->subDay()->toDateString();
 
-        $todayMilk = $animal->milkProductions()
-            ->whereDate('recorded_at', $today)
-            ->sum('litres');
+        $todayMilk     = $animal->milkProductions()->whereDate('recorded_at', $today)->sum('litres');
+        $yesterdayMilk = $animal->milkProductions()->whereDate('recorded_at', $yesterday)->sum('litres');
 
-        $yesterdayMilk = $animal->milkProductions()
-            ->whereDate('recorded_at', $yesterday)
-            ->sum('litres');
+        $milkDiffPercent = $yesterdayMilk > 0
+            ? (($todayMilk - $yesterdayMilk) / $yesterdayMilk) * 100
+            : 0;
 
-        // % difference
-        if ($yesterdayMilk > 0) {
-            $milkDiffPercent = (($todayMilk - $yesterdayMilk) / $yesterdayMilk) * 100;
-        } else {
-            $milkDiffPercent = 0;
-        }
+        $monthly = $animal->milkProductions()
+            ->where('recorded_at', '>=', now()->subDays(30))
+            ->orderBy('recorded_at')
+            ->get()
+            ->groupBy(function ($row) {
+                return \Carbon\Carbon::parse($row->recorded_at)->format('d M');
+            })
+            ->map(function ($day) {
+                return $day->sum('litres');
+            });
+
+        $monthlyLabels = $monthly->keys();
+        $monthlyValues = $monthly->values();
 
         return view('animals.show', compact(
             'animal',
             'todayMilk',
             'yesterdayMilk',
-            'milkDiffPercent'
+            'milkDiffPercent',
+            'monthlyLabels',
+            'monthlyValues'
         ));
     }
 

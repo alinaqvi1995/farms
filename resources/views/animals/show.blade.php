@@ -22,45 +22,60 @@
 
     <div class="row">
 
-        {{-- Milk Stats Compact Dashboard --}}
         <div class="col-12 mb-3">
-            <div class="card shadow-sm" style="border-left: 5px solid #4e73df;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="row">
 
-                    {{-- Left Side: Milk Values --}}
-                    <div>
-                        <div class="text-muted small mb-1">Milk Production</div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm" style="border-left: 5px solid #4e73df;">
+                        <div class="card-body d-flex justify-content-between align-items-center">
 
-                        <div style="font-size: 32px; font-weight: 700; line-height: 1;">
-                            {{ number_format($todayMilk, 2) }} L
-                        </div>
+                            <div>
+                                <div class="text-muted small mb-1">Today's Milk</div>
 
-                        <div class="text-muted mt-1" style="font-size: 14px;">
-                            Yesterday: <strong>{{ number_format($yesterdayMilk, 2) }} L</strong>
+                                <div style="font-size: 32px; font-weight: 700;">
+                                    {{ number_format($todayMilk, 2) }} L
+                                </div>
+
+                                <div class="text-muted mt-1" style="font-size: 14px;">
+                                    Yesterday: <strong>{{ number_format($yesterdayMilk, 2) }} L</strong>
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                @if ($milkDiffPercent > 0)
+                                    <div class="text-success fw-bold" style="font-size: 22px;">
+                                        ↑ {{ number_format($milkDiffPercent, 1) }}%
+                                    </div>
+                                    <div class="small text-muted">Improved</div>
+                                @elseif ($milkDiffPercent < 0)
+                                    <div class="text-danger fw-bold" style="font-size: 22px;">
+                                        ↓ {{ number_format(abs($milkDiffPercent), 1) }}%
+                                    </div>
+                                    <div class="small text-muted">Dropped</div>
+                                @else
+                                    <div class="text-muted fw-bold" style="font-size: 22px;">
+                                        — 0%
+                                    </div>
+                                    <div class="small text-muted">No change</div>
+                                @endif
+                            </div>
+
                         </div>
                     </div>
-
-                    {{-- Right Side: Percentage Change --}}
-                    <div class="text-end">
-                        @if ($milkDiffPercent > 0)
-                            <div class="text-success fw-bold" style="font-size: 20px;">
-                                ↑ {{ number_format($milkDiffPercent, 1) }}%
-                            </div>
-                            <div class="small text-muted">Improved</div>
-                        @elseif ($milkDiffPercent < 0)
-                            <div class="text-danger fw-bold" style="font-size: 20px;">
-                                ↓ {{ number_format(abs($milkDiffPercent), 1) }}%
-                            </div>
-                            <div class="small text-muted">Dropped</div>
-                        @else
-                            <div class="text-muted fw-bold" style="font-size: 20px;">
-                                — 0%
-                            </div>
-                            <div class="small text-muted">No change</div>
-                        @endif
-                    </div>
-
                 </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm" style="border-left: 5px solid #1cc88a;">
+                        <div class="card-body">
+
+                            <div class="text-muted small mb-1">Monthly Milk Trend</div>
+
+                            <canvas id="monthlyMilkChart" height="100"></canvas>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -151,4 +166,42 @@
         @endforeach
 
     </div>
+@endsection
+
+@section('extra_js')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('monthlyMilkChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($monthlyLabels) !!},
+                datasets: [{
+                    label: "Milk (L)",
+                    data: {!! json_encode($monthlyValues) !!},
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection
