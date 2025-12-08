@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AnimalRequest;
 use App\Models\Animal;
 use App\Services\AnimalService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AnimalController extends Controller
 {
@@ -181,7 +181,23 @@ class AnimalController extends Controller
 
         $relation = $mapping[$panel];
 
-        $data = $animal->$relation()->orderBy('id', 'desc')->paginate($perPage);
+        // $data = $animal->$relation()->orderBy('id', 'desc')->paginate($perPage);
+        $search = $request->get('search', '');
+
+        $query = $animal->$relation()->orderBy('id', 'desc');
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                // search in all non-id columns
+                foreach ($q->getModel()->getFillable() as $field) {
+                    if (! str_ends_with($field, '_id')) {
+                        $q->orWhere($field, 'like', "%{$search}%");
+                    }
+                }
+            });
+        }
+
+        $data = $query->paginate($perPage);
 
         return response()->json([
             'html' => view('animals.partials.subpanel-table', [

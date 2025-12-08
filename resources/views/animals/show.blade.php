@@ -244,16 +244,46 @@
             loadPanel(panel, content, loading);
         });
 
-        function loadPanel(panel, content, loading, page = 1) {
+        $(document).on('keyup', '.subpanel-search', function() {
+            const panel = $(this).data('panel');
+            const query = $(this).val();
+            const body = $('#panel-' + panel);
+            const content = body.find('.subpanel-content');
+            const loading = body.find('.subpanel-loading');
+
+            loadPanel(panel, content, loading, 1, query);
+        });
+
+        function loadPanel(panel, content, loading, page = 1, search = '') {
             loading.show();
 
             $.get("{{ url('/animal/' . $animal->id) }}/" + panel, {
-                page: page
+                page: page,
+                search: search
             }, function(result) {
                 loading.hide();
                 content.html(result.html);
+
+                // intercept pagination links via AJAX
+                content.find('.pagination a').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    const pageNum = $(this).data('page') || $(this).attr('href').split('page=')[1];
+                    loadPanel(panel, content, loading, pageNum, search);
+                });
             });
         }
+
+
+        // function loadPanel(panel, content, loading, page = 1) {
+        //     loading.show();
+
+        //     $.get("{{ url('/animal/' . $animal->id) }}/" + panel, {
+        //         page: page
+        //     }, function(result) {
+        //         loading.hide();
+        //         content.html(result.html);
+        //     });
+        // }
 
         // delegate all pagination clicks for subpanels
         $(document).on('click', '.subpanel-content .pagination a', function(e) {
