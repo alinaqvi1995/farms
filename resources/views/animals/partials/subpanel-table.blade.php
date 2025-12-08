@@ -1,8 +1,4 @@
 @if ($data->count())
-    <div class="mb-2">
-        <input type="text" class="form-control form-control-sm subpanel-search" placeholder="Search..."
-            data-panel="{{ $panel }}" value="{{ $search ?? '' }}">
-    </div>
 
     <div class="table-responsive">
         <table class="table table-bordered table-sm">

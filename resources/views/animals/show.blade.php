@@ -142,6 +142,10 @@
 
                     <div class="card-body subpanel-body" id="panel-{{ Str::slug($title) }}" style="display:none;">
                         <div class="subpanel-loading" style="display:none;">
+                            <div class="mb-2">
+                                <input type="text" class="form-control form-control-sm subpanel-search"
+                                    placeholder="Search..." data-panel="{{ $panel }}" value="{{ $search ?? '' }}">
+                            </div>
                             Loading...
                         </div>
                         <div class="subpanel-content"></div>
