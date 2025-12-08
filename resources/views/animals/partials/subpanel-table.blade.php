@@ -10,7 +10,7 @@
                             // Skip system columns
                             $skipCols = ['updated_by', 'deleted_at', 'updated_at', 'created_at', 'id'];
                         @endphp
-                        @if (!in_array($field, $skipCols))
+                        @if (!in_array($field, $skipCols) && !str_contains($field, '_id') && !str_contains($field, 'id_'))
                             <th>{{ ucfirst(str_replace('_', ' ', $field)) }}</th>
                         @endif
                     @endforeach
@@ -22,11 +22,10 @@
                     <tr>
                         <td>{{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}</td>
                         @foreach ($row->getAttributes() as $field => $value)
-                            @if (!in_array($field, $skipCols))
+                            @if (!in_array($field, $skipCols) && !str_contains($field, '_id') && !str_contains($field, 'id_'))
                                 @if (str_ends_with($field, '_by'))
                                     {{-- Show related user's name --}}
                                     <td>{{ $row->user?->name ?? 'N/A' }}</td>
-                                    {{-- <td>{{ $row->{$field . '_rel'}?->name ?? 'N/A' }}</td> --}}
                                 @else
                                     <td>{{ $value }}</td>
                                 @endif
@@ -45,8 +44,7 @@
                     @if (is_array($element))
                         @foreach ($element as $page => $url)
                             <li class="page-item {{ $page == $data->currentPage() ? 'active' : '' }}">
-                                <a href="#" class="page-link"
-                                    data-page="{{ $page }}">{{ $page }}</a>
+                                <a href="#" class="page-link" data-page="{{ $page }}">{{ $page }}</a>
                             </li>
                         @endforeach
                     @endif
