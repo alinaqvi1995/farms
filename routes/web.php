@@ -108,6 +108,10 @@ Route::middleware(['auth', 'check_active'])->group(function () {
     Route::resource('feed_inventories', FeedInventoryController::class)->shallow();
 
     Route::resource('states', StateController::class);
+
+    Route::get('/animal/{animal}/{panel}', [AnimalController::class, 'loadSubpanel'])
+     ->name('animals.subpanel');
+
 Route::resource('cities', CityController::class);
 
 });

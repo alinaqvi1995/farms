@@ -129,7 +129,27 @@
             ];
         @endphp
 
-        @foreach ($subpanels as $title => $records)
+        <!-- AJAX Subpanels -->
+        @foreach ($subpanels as $title => $relation)
+            <div class="col-12">
+                <div class="card mb-3 subpanel-card">
+                    <div class="card-header bg-info d-flex justify-content-between align-items-center subpanel-toggle"
+                        data-panel="{{ Str::slug($title) }}">
+                        <h5 class="mb-0 text-white">{{ $title }}</h5>
+                        <span class="text-white">▼</span>
+                    </div>
+
+                    <div class="card-body subpanel-body" id="panel-{{ Str::slug($title) }}" style="display:none;">
+                        <div class="subpanel-loading" style="display:none;">
+                            Loading...
+                        </div>
+                        <div class="subpanel-content"></div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
+        {{-- @foreach ($subpanels as $title => $records)
             <div class="col-12">
                 <div class="card mb-3">
                     <div class="card-header bg-info">
@@ -163,7 +183,7 @@
                     </div>
                 </div>
             </div>
-        @endforeach
+        @endforeach --}}
 
     </div>
 @endsection

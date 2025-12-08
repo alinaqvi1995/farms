@@ -158,4 +158,35 @@ class AnimalController extends Controller
         $this->service->delete($animal);
         return redirect()->route('animals.index')->with('success', 'Animal deleted successfully.');
     }
+
+    public function loadSubpanel(Request $request, Animal $animal, $panel)
+    {
+        $page    = $request->get('page', 1);
+        $perPage = 15;
+
+        $mapping = [
+            'milk-production' => 'milkProductions',
+            'reproductions'   => 'reproductions',
+            'calves'          => 'calves',
+            'health-checks'   => 'healthChecks',
+            'vaccinations'    => 'vaccinations',
+            'treatments'      => 'treatments',
+            'diseases'        => 'diseases',
+        ];
+
+        if (! isset($mapping[$panel])) {
+            return response()->json(['html' => '<p>Invalid panel.</p>']);
+        }
+
+        $relation = $mapping[$panel];
+
+        $data = $animal->$relation()->orderBy('id', 'desc')->paginate($perPage);
+
+        return response()->json([
+            'html' => view('animals.partials.subpanel-table', [
+                'data'  => $data,
+                'panel' => $panel,
+            ])->render(),
+        ]);
+    }
 }
