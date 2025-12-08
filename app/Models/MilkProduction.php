@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\LogsActivity;
 
 class MilkProduction extends Model
 {
@@ -39,13 +38,14 @@ class MilkProduction extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function getRecordedAtAttribute()
+    public function getRecordedAtAttribute($value)
     {
-        return $this->recorded_at ? $this->recorded_at->format('Md, Y h:ia') : '-';
+        return $value ? \Carbon\Carbon::parse($value)->format('d M, Y h:ia') : '-';
     }
 
-    public function getCreatedAtAttribute()
+    public function getCreatedAtAttribute($value)
     {
-        return $this->created_at ? $this->created_at->format('Md, Y h:ia') : '-';
+        return $value ? \Carbon\Carbon::parse($value)->format('d M, Y h:ia') : '-';
     }
+
 }
