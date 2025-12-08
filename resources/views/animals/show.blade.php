@@ -224,7 +224,7 @@
             }
         });
 
-        $('.subpanel-toggle').on('click', function() {
+        $(document).on('click', '.subpanel-toggle', function() {
             const panel = $(this).data('panel');
             const body = $('#panel-' + panel);
             const content = body.find('.subpanel-content');
