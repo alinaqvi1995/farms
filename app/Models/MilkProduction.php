@@ -38,9 +38,4 @@ class MilkProduction extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
-    public function getCreatedAtAttribute()
-    {
-        return $this->created_at ? $this->created_at->format('Md, Y h:ia') : '-';
-    }
 }
