@@ -235,14 +235,24 @@
                 return;
             }
 
-            body.show();
+            loadPanel(panel, content, loading);
+        });
+
+        function loadPanel(panel, content, loading, page = 1) {
             loading.show();
 
-            $.get("{{ url('/animal/' . $animal->id) }}/" + panel, function(result) {
+            $.get("{{ url('/animal/' . $animal->id) }}/" + panel + "?page=" + page, function(result) {
                 loading.hide();
                 content.html(result.html);
-            });
-        });
-    </script>
 
+                // intercept pagination links
+                content.find('.pagination a').on('click', function(e) {
+                    e.preventDefault();
+                    const url = new URL($(this).attr('href'));
+                    const pageNum = url.searchParams.get('page');
+                    loadPanel(panel, content, loading, pageNum);
+                });
+            });
+        }
+    </script>
 @endsection
