@@ -38,4 +38,9 @@ class MilkProduction extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+    
+    public function getCreatedByAttribute()
+    {
+        return $this->user ? $this->user->name : 'N/A';
+    }
 }
