@@ -223,5 +223,26 @@
                 }
             }
         });
+
+        $('.subpanel-toggle').on('click', function() {
+            const panel = $(this).data('panel');
+            const body = $('#panel-' + panel);
+            const content = body.find('.subpanel-content');
+            const loading = body.find('.subpanel-loading');
+
+            if (body.is(':visible')) {
+                body.hide();
+                return;
+            }
+
+            body.show();
+            loading.show();
+
+            $.get("{{ url('/animal/' . $animal->id) }}/" + panel, function(result) {
+                loading.hide();
+                content.html(result.html);
+            });
+        });
     </script>
+
 @endsection
