@@ -139,15 +139,12 @@
                         <h5 class="mb-0 text-white">{{ $title }}</h5>
                         <span class="text-white toggle-arrow">▼</span>
                     </div>
-
                     <div class="card-body subpanel-body" id="panel-{{ Str::slug($title) }}" style="display:none;">
-                        <div class="subpanel-loading" style="display:none;">
-                            <div class="mb-2">
-                                <input type="text" class="form-control form-control-sm subpanel-search"
-                                    placeholder="Search..." data-panel="{{ $panel }}" value="{{ $search ?? '' }}">
-                            </div>
-                            Loading...
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm subpanel-search"
+                                placeholder="Search..." data-panel="{{ Str::slug($title) }}">
                         </div>
+                        <div class="subpanel-loading" style="display:none;">Loading...</div>
                         <div class="subpanel-content"></div>
                     </div>
                 </div>
