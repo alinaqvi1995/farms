@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AnimalRequest;
@@ -37,36 +36,73 @@ class AnimalController extends Controller
     {
         $currentUser = Auth::user();
 
-        // Farm admins can only view animals in their farm
         if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
             abort(403, 'Unauthorized');
         }
 
-        // Load related farm if needed
-        $animal->load('farm');
+        $animal->load('farm', 'milkProductions');
 
-        return view('animals.show', compact('animal'));
+        // === Milk Stats ===
+        $today     = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
+
+        $todayMilk = $animal->milkProductions()
+            ->whereDate('recorded_at', $today)
+            ->sum('litres');
+
+        $yesterdayMilk = $animal->milkProductions()
+            ->whereDate('recorded_at', $yesterday)
+            ->sum('litres');
+
+        // % difference
+        if ($yesterdayMilk > 0) {
+            $milkDiffPercent = (($todayMilk - $yesterdayMilk) / $yesterdayMilk) * 100;
+        } else {
+            $milkDiffPercent = 0;
+        }
+
+        return view('animals.show', compact(
+            'animal',
+            'todayMilk',
+            'yesterdayMilk',
+            'milkDiffPercent'
+        ));
     }
+
+    // public function show(Animal $animal)
+    // {
+    //     $currentUser = Auth::user();
+
+    //     // Farm admins can only view animals in their farm
+    //     if ($currentUser->isFarmAdmin() && $animal->farm_id != $currentUser->farm_id) {
+    //         abort(403, 'Unauthorized');
+    //     }
+
+    //     // Load related farm if needed
+    //     $animal->load('farm');
+
+    //     return view('animals.show', compact('animal'));
+    // }
 
     public function create()
     {
         $currentUser = Auth::user();
 
         // Only super admin or farm admin can create
-        if (!$currentUser->isSuperAdmin() && !$currentUser->isFarmAdmin()) {
+        if (! $currentUser->isSuperAdmin() && ! $currentUser->isFarmAdmin()) {
             abort(403);
         }
 
         return view('animals.create', [
             'farms' => $currentUser->isSuperAdmin()
                 ? \App\Models\Farm::all()
-                : \App\Models\Farm::where('id', $currentUser->farm_id)->get()
+                : \App\Models\Farm::where('id', $currentUser->farm_id)->get(),
         ]);
     }
 
     public function store(AnimalRequest $request)
     {
-        $data = $request->validated();
+        $data        = $request->validated();
         $currentUser = Auth::user();
 
         // Farm admins can only create in their farm
