@@ -22,7 +22,22 @@
     </div>
 
     <div class="mt-2">
-        {{ $data->links() }}
+        @if ($data->count())
+            <nav>
+                <ul class="pagination">
+                    @foreach ($records->links()->elements as $element)
+                        @if (is_array($element))
+                            @foreach ($element as $page => $url)
+                                <li class="page-item {{ $page == $records->currentPage() ? 'active' : '' }}">
+                                    <a href="#" class="page-link"
+                                        data-page="{{ $page }}">{{ $page }}</a>
+                                </li>
+                            @endforeach
+                        @endif
+                    @endforeach
+                </ul>
+            </nav>
+        @endif
     </div>
 @else
     <p>No records found.</p>

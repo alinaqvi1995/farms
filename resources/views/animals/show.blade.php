@@ -247,18 +247,22 @@
         function loadPanel(panel, content, loading, page = 1) {
             loading.show();
 
-            $.get("{{ url('/animal/' . $animal->id) }}/" + panel + "?page=" + page, function(result) {
+            $.get("{{ url('/animal/' . $animal->id) }}/" + panel, {
+                page: page
+            }, function(result) {
                 loading.hide();
                 content.html(result.html);
-
-                // intercept pagination links
-                content.find('.pagination a').on('click', function(e) {
-                    e.preventDefault();
-                    const url = new URL($(this).attr('href'));
-                    const pageNum = url.searchParams.get('page');
-                    loadPanel(panel, content, loading, pageNum);
-                });
             });
         }
+
+        // delegate all pagination clicks for subpanels
+        $(document).on('click', '.subpanel-content .pagination a', function(e) {
+            e.preventDefault();
+            const panel = $(this).closest('.subpanel-body').attr('id').replace('panel-', '');
+            const content = $('#panel-' + panel).find('.subpanel-content');
+            const loading = $('#panel-' + panel).find('.subpanel-loading');
+            const pageNum = $(this).data('page');
+            loadPanel(panel, content, loading, pageNum);
+        });
     </script>
 @endsection
