@@ -1,7 +1,7 @@
 @if ($data->count())
     <div class="mb-2">
         <input type="text" class="form-control form-control-sm subpanel-search" placeholder="Search..."
-            data-panel="{{ $panel }}" value="{{ $search ?? '' }}"> {{-- preserve search input --}}
+            data-panel="{{ $panel }}" value="{{ $search ?? '' }}">
     </div>
 
     <div class="table-responsive">
@@ -10,7 +10,11 @@
                 <tr>
                     <th>Sr#</th>
                     @foreach (array_keys($data->first()->getAttributes()) as $field)
-                        @if (!str_ends_with($field, '_id') && $field !== 'id')
+                        @php
+                            // Skip system columns
+                            $skipCols = ['updated_by', 'deleted_at', 'updated_at', 'created_at', 'id'];
+                        @endphp
+                        @if (!in_array($field, $skipCols))
                             <th>{{ ucfirst(str_replace('_', ' ', $field)) }}</th>
                         @endif
                     @endforeach
@@ -22,8 +26,14 @@
                     <tr>
                         <td>{{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}</td>
                         @foreach ($row->getAttributes() as $field => $value)
-                            @if (!str_ends_with($field, '_id') && $field !== 'id')
-                                <td>{{ $value }}</td>
+                            @if (!in_array($field, $skipCols))
+                                @if (str_ends_with($field, '_by'))
+                                    {{-- Show related user's name --}}
+                                    <td>{{ $row->user?->name ?? 'N/A' }}</td>
+                                    {{-- <td>{{ $row->{$field . '_rel'}?->name ?? 'N/A' }}</td> --}}
+                                @else
+                                    <td>{{ $value }}</td>
+                                @endif
                             @endif
                         @endforeach
                     </tr>

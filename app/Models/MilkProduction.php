@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Models;
 
-use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\LogsActivity;
 
 class MilkProduction extends Model
 {
@@ -36,10 +37,5 @@ class MilkProduction extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function getCreatedByNameAttribute()
-    {
-        return $this->user ? $this->user->name : 'N/A';
     }
 }
