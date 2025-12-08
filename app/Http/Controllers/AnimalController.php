@@ -5,6 +5,7 @@ use App\Http\Requests\AnimalRequest;
 use App\Models\Animal;
 use App\Services\AnimalService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class AnimalController extends Controller
 {
