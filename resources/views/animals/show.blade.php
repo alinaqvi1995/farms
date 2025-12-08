@@ -2,6 +2,7 @@
 @section('title', 'Animal Details')
 
 @section('content')
+    @php use Illuminate\Support\Str; @endphp
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
         <div class="breadcrumb-title pe-3">Dashboard</div>
         <div class="ps-3">
@@ -136,7 +137,7 @@
                     <div class="card-header bg-info d-flex justify-content-between align-items-center subpanel-toggle"
                         data-panel="{{ Str::slug($title) }}">
                         <h5 class="mb-0 text-white">{{ $title }}</h5>
-                        <span class="text-white">▼</span>
+                        <span class="text-white toggle-arrow">▼</span>
                     </div>
 
                     <div class="card-body subpanel-body" id="panel-{{ Str::slug($title) }}" style="display:none;">
@@ -227,13 +228,18 @@
         $(document).on('click', '.subpanel-toggle', function() {
             const panel = $(this).data('panel');
             const body = $('#panel-' + panel);
+            const arrow = $(this).find('.toggle-arrow');
             const content = body.find('.subpanel-content');
             const loading = body.find('.subpanel-loading');
 
             if (body.is(':visible')) {
-                body.hide();
+                body.slideUp(200);
+                arrow.text('▼');
                 return;
             }
+
+            body.slideDown(200);
+            arrow.text('▲');
 
             loadPanel(panel, content, loading);
         });
