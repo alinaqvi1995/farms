@@ -8,7 +8,7 @@
                     @foreach (array_keys($data->first()->getAttributes()) as $field)
                         @php
                             // Skip system columns
-                            $skipCols = ['updated_by', 'deleted_at', 'updated_at', 'created_at', 'id'];
+                            $skipCols = ['updated_by', 'deleted_at', 'updated_at', 'id'];
                         @endphp
                         @if (!in_array($field, $skipCols) && !str_contains($field, '_id') && !str_contains($field, 'id_'))
                             <th>{{ ucfirst(str_replace('_', ' ', $field)) }}</th>
