@@ -22,73 +22,45 @@
 
     <div class="row">
 
-        {{-- Milk Stats Dashboard --}}
+        {{-- Milk Stats Compact Dashboard --}}
         <div class="col-12 mb-3">
-            <div class="row">
+            <div class="card shadow-sm" style="border-left: 5px solid #4e73df;">
+                <div class="card-body d-flex justify-content-between align-items-center">
 
-                {{-- Today Milk --}}
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-left-primary">
-                        <div class="card-body">
-                            <h6 class="text-muted mb-1">Today's Milk</h6>
-                            <h3 class="fw-bold">{{ number_format($todayMilk, 2) }} L</h3>
+                    {{-- Left Side: Milk Values --}}
+                    <div>
+                        <div class="text-muted small mb-1">Milk Production</div>
+
+                        <div style="font-size: 32px; font-weight: 700; line-height: 1;">
+                            {{ number_format($todayMilk, 2) }} L
+                        </div>
+
+                        <div class="text-muted mt-1" style="font-size: 14px;">
+                            Yesterday: <strong>{{ number_format($yesterdayMilk, 2) }} L</strong>
                         </div>
                     </div>
-                </div>
 
-                {{-- Yesterday milk + % diff --}}
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-left-info">
-                        <div class="card-body">
-                            <h6 class="text-muted mb-1">Yesterday</h6>
-                            <h3 class="fw-bold">{{ number_format($yesterdayMilk, 2) }} L</h3>
-
-                            @if ($milkDiffPercent > 0)
-                                <span class="text-success fw-bold">
-                                    ↑ {{ number_format($milkDiffPercent, 1) }}%
-                                </span>
-                            @elseif ($milkDiffPercent < 0)
-                                <span class="text-danger fw-bold">
-                                    ↓ {{ number_format(abs($milkDiffPercent), 1) }}%
-                                </span>
-                            @else
-                                <span class="text-muted fw-bold">No Change</span>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Mini Comparison Graph --}}
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-left-warning">
-                        <div class="card-body">
-                            <h6 class="text-muted mb-1">Comparison</h6>
-
-                            {{-- Simple bar chart --}}
-                            @php
-                                $max = max($todayMilk, $yesterdayMilk, 1);
-                                $tWidth = ($todayMilk / $max) * 100;
-                                $yWidth = ($yesterdayMilk / $max) * 100;
-                            @endphp
-
-                            <div class="mb-2">
-                                <small>Today</small>
-                                <div style="height:8px; background:#e0e0e0;">
-                                    <div style="width:{{ $tWidth }}%; height:8px;"></div>
-                                </div>
+                    {{-- Right Side: Percentage Change --}}
+                    <div class="text-end">
+                        @if ($milkDiffPercent > 0)
+                            <div class="text-success fw-bold" style="font-size: 20px;">
+                                ↑ {{ number_format($milkDiffPercent, 1) }}%
                             </div>
-
-                            <div>
-                                <small>Yesterday</small>
-                                <div style="height:8px; background:#e0e0e0;">
-                                    <div style="width:{{ $yWidth }}%; height:8px; background:#999;"></div>
-                                </div>
+                            <div class="small text-muted">Improved</div>
+                        @elseif ($milkDiffPercent < 0)
+                            <div class="text-danger fw-bold" style="font-size: 20px;">
+                                ↓ {{ number_format(abs($milkDiffPercent), 1) }}%
                             </div>
-
-                        </div>
+                            <div class="small text-muted">Dropped</div>
+                        @else
+                            <div class="text-muted fw-bold" style="font-size: 20px;">
+                                — 0%
+                            </div>
+                            <div class="small text-muted">No change</div>
+                        @endif
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
 
