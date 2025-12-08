@@ -1,7 +1,7 @@
 @if ($data->count())
     <div class="mb-2">
         <input type="text" class="form-control form-control-sm subpanel-search" placeholder="Search..."
-            data-panel="{{ $panel }}">
+            data-panel="{{ $panel }}" value="{{ $search ?? '' }}"> {{-- preserve search input --}}
     </div>
 
     <div class="table-responsive">
@@ -20,7 +20,6 @@
             <tbody>
                 @foreach ($data as $index => $row)
                     <tr>
-                        {{-- Sr# continuous across pagination --}}
                         <td>{{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}</td>
                         @foreach ($row->getAttributes() as $field => $value)
                             @if (!str_ends_with($field, '_id') && $field !== 'id')

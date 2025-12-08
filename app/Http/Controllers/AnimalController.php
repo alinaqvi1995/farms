@@ -163,7 +163,8 @@ class AnimalController extends Controller
     public function loadSubpanel(Request $request, Animal $animal, $panel)
     {
         $page    = $request->get('page', 1);
-        $perPage = 15;
+        $perPage = 10;
+        $search  = $request->get('search', '');
 
         $mapping = [
             'milk-production' => 'milkProductions',
@@ -201,8 +202,9 @@ class AnimalController extends Controller
 
         return response()->json([
             'html' => view('animals.partials.subpanel-table', [
-                'data'  => $data,
-                'panel' => $panel,
+                'data'   => $data,
+                'panel'  => $panel,
+                'search' => $search,
             ])->render(),
         ]);
     }
