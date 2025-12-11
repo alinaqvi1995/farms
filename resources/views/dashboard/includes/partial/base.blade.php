@@ -249,16 +249,16 @@
             // Also clear generic one just in case
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-            // Clear LocalStorage which Google sometimes uses
+            // Clear Storage
             localStorage.removeItem('googtrans');
             localStorage.removeItem('/en/ur');
             localStorage.removeItem('/en/en');
+            sessionStorage.clear();
 
-            if (lang !== 'en') {
-                var targetCookie = "/en/" + lang;
-                document.cookie = "googtrans=" + targetCookie + "; path=/;";
-                document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + domain;
-            }
+            // Set cookie for selected language
+            var targetCookie = "/en/" + lang;
+            document.cookie = "googtrans=" + targetCookie + "; path=/;";
+            document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + domain;
 
             // Reload
             setTimeout(function() {
