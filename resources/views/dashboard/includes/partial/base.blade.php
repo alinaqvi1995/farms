@@ -227,17 +227,22 @@
         }
 
         function setLanguage(lang) {
-            // Clear all variations of the cookie
-            var domain = window.location.hostname;
+            var host = window.location.hostname;
+            var parts = host.split('.');
+            var rootDomain = parts.slice(-2).join('.'); // crude TLD+1 detection but works for standard .com, .net
+
+            // List of domains to target
             var domains = [
-                domain,
-                "." + domain,
-                domain.replace('www.', ''),
-                "." + domain.replace('www.', '')
+                host,
+                "." + host,
+                rootDomain,
+                "." + rootDomain
             ];
 
+            // List of paths to target
             var paths = ["/", "/admin", window.location.pathname];
 
+            // 1. Aggressively CLEAR everything first
             domains.forEach(function(d) {
                 paths.forEach(function(p) {
                     document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=" + p +
@@ -246,7 +251,6 @@
                 });
             });
 
-            // Also clear generic one just in case
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
             // Clear Storage
@@ -255,16 +259,18 @@
             localStorage.removeItem('/en/en');
             sessionStorage.clear();
 
-            // Set cookie for selected language
-            var targetCookie = "/en/" + lang;
-            document.cookie = "googtrans=" + targetCookie + "; path=/;";
-            document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + domain;
+            // 2. Set New Cookie (ONLY if NOT English)
+            // Strategy: For English, we want NO cookie (Original).
+            // Setting /en/en proved unreliable.
+            if (lang !== 'en') {
+                var targetCookie = "/en/" + lang;
+                document.cookie = "googtrans=" + targetCookie + "; path=/;";
+                document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + host;
+            }
 
-            // Reload
+            // 3. Reload
             setTimeout(function() {
-                var url = new URL(window.location.href);
-                url.searchParams.set('lang_t', new Date().getTime());
-                window.location.href = url.toString();
+                location.reload();
             }, 100);
         }
 
