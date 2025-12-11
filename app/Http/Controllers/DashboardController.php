@@ -43,6 +43,12 @@ class DashboardController extends Controller
                 ->groupBy('date')
                 ->orderBy('date')
                 ->pluck('litres', 'date');
+
+            // Milk Sales Stats
+            $salesToday = \App\Models\MilkSale::whereDate('sold_at', $today)->sum('quantity');
+            $revenueToday = \App\Models\MilkSale::whereDate('sold_at', $today)->sum('total_amount');
+            $recentSales = \App\Models\MilkSale::with('vendor', 'farm')->latest('sold_at')->take(5)->get();
+
         } else {
             // --- Farm Admin: farm-specific stats ---
             $farm = $user->farm; // Assuming each user is linked to a farm
@@ -70,6 +76,11 @@ class DashboardController extends Controller
                 ->groupBy('date')
                 ->orderBy('date')
                 ->pluck('litres', 'date');
+            
+            // Milk Sales Stats
+            $salesToday = $farm->milkSales()->whereDate('sold_at', $today)->sum('quantity');
+            $revenueToday = $farm->milkSales()->whereDate('sold_at', $today)->sum('total_amount');
+            $recentSales = $farm->milkSales()->with('vendor')->latest('sold_at')->take(5)->get();
         }
 
         // Calculate milk change %
@@ -90,7 +101,10 @@ class DashboardController extends Controller
             'milkYesterday',
             'milkChangePercent',
             'milkTrend',
-            'milkLast7Days'
+            'milkLast7Days',
+            'salesToday',
+            'revenueToday',
+            'recentSales'
         ));
     }
 }

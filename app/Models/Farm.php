@@ -137,4 +137,14 @@ class Farm extends Model
     {
         return $this->hasMany(\App\Models\FeedInventory::class);
     }
+
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class, 'farm_vendor');
+    }
+
+    public function milkSales()
+    {
+        return $this->hasMany(MilkSale::class);
+    }
 }

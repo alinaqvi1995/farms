@@ -8,7 +8,7 @@
             <h6 class="mb-0" style="color: #FC5523 !important">Farm Management</h6>
         </div>
         <div class="sidebar-close">
-            <span class="material-icons-outlined">close</span>
+            <span class="material-icons-outlined notranslate">close</span>
         </div>
     </div>
 
@@ -83,6 +83,25 @@
                         <span class="badge bg-primary float-end">{{ $animalsCount ?? 0 }}</span>
                     </div>
                 </a>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('milk_sales.index') }}">
+                    <div class="parent-icon notranslate"><i class="material-icons-outlined">water_drop</i></div>
+                    <div class="menu-title">
+                        Milk Sales
+                    </div>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('vendors.index') }}">
+                    <div class="parent-icon notranslate"><i class="material-icons-outlined">storefront</i></div>
+                    <div class="menu-title">
+                        Vendors
+                    </div>
+                </a>
             </li>
 
             {{-- <li>
@@ -93,6 +112,24 @@
                     </div>
                 </a>
             </li> --}}
+
+            <li class="menu-label">Reports</li>
+            <li>
+                <a href="{{ route('reports.production') }}">
+                    <div class="parent-icon notranslate"><i class="material-icons-outlined">analytics</i></div>
+                    <div class="menu-title">
+                        Milk Production
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('reports.sales') }}">
+                    <div class="parent-icon notranslate"><i class="material-icons-outlined">paid</i></div>
+                    <div class="menu-title">
+                        Milk Sales
+                    </div>
+                </a>
+            </li>
 
             <!-- Users & Roles -->
             @if (auth()->user()->isSuperAdmin() || auth()->user()->isFarmAdmin())
@@ -109,7 +146,7 @@
 
                 <li class="nav-item">
                     <a href="{{ route('feed_inventories.index') }}" class="nav-link d-flex align-items-center">
-                        <div class="parent-icon me-2">
+                        <div class="parent-icon me-2 notranslate">
                             <i class="material-icons-outlined">grass</i>
                         </div>
                         <span class="menu-title">Feed</span>
@@ -139,12 +176,14 @@
                         </a>
                     </li>
 
+                    <div class="menu-title">Roles</div>
+                    </a>
+                    </li>
+
                     <li>
-                        <a href="{{ route('roles.index') }}">
-                            <div class="parent-icon notranslate"><i
-                                    class="material-icons-outlined">admin_panel_settings</i>
-                            </div>
-                            <div class="menu-title">Roles</div>
+                        <a href="{{ route('settings.index') }}">
+                            <div class="parent-icon notranslate"><i class="material-icons-outlined">settings</i></div>
+                            <div class="menu-title">Settings</div>
                         </a>
                     </li>
                 @endif

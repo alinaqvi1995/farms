@@ -1,30 +1,29 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SubcategoryController;
-use App\Http\Controllers\Backend\BlogController as BackendBlogController;
+use App\Http\Controllers\Animal\AnimalDiseaseController;
+use App\Http\Controllers\Animal\AnimalHealthCheckController;
+use App\Http\Controllers\Animal\AnimalReproductionController;
+use App\Http\Controllers\Animal\AnimalTreatmentController;
+use App\Http\Controllers\Animal\AnimalVaccinationController;
+use App\Http\Controllers\Animal\CalfController;
+use App\Http\Controllers\Animal\FeedInventoryController;
+use App\Http\Controllers\Animal\MilkProductionController;
+use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Backend\AdminController;
+use App\Http\Controllers\Backend\BlogController as BackendBlogController;
+use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserManagementController;
-use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\UserTrustedIpController;
-use App\Http\Controllers\Auth\OtpController;
-use App\Http\Controllers\FarmController;
-use App\Http\Controllers\AnimalController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Animal\MilkProductionController;
-use App\Http\Controllers\Animal\AnimalReproductionController;
-use App\Http\Controllers\Animal\CalfController;
-use App\Http\Controllers\Animal\AnimalHealthCheckController;
-use App\Http\Controllers\Animal\AnimalVaccinationController;
-use App\Http\Controllers\Animal\AnimalTreatmentController;
-use App\Http\Controllers\Animal\AnimalDiseaseController;
-use App\Http\Controllers\Animal\FeedInventoryController;
-use App\Http\Controllers\StateController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FarmController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StateController;
+use App\Http\Controllers\SubcategoryController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -110,22 +109,33 @@ Route::middleware(['auth', 'check_active'])->group(function () {
     Route::resource('states', StateController::class);
 
     Route::get('/animal/{animal}/{panel}', [AnimalController::class, 'loadSubpanel'])
-     ->name('animals.subpanel');
+        ->name('animals.subpanel');
 
-Route::resource('cities', CityController::class);
+    Route::resource('cities', CityController::class);
+
+    // Milk Sales
+    Route::resource('milk_sales', \App\Http\Controllers\MilkSaleController::class);
+
+    // Vendors
+    Route::resource('vendors', \App\Http\Controllers\VendorController::class);
+
+    // Global Settings
+    Route::get('/settings', [\App\Http\Controllers\GlobalSettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\GlobalSettingController::class, 'update'])->name('settings.update');
+
+    // Reports
+    Route::get('/reports/production', [\App\Http\Controllers\ReportController::class, 'milkProduction'])->name('reports.production');
+    Route::get('/reports/sales', [\App\Http\Controllers\ReportController::class, 'milkSales'])->name('reports.sales');
 
 });
 
-require __DIR__ . '/auth.php';
-
+require __DIR__.'/auth.php';
 
 // Route::get('/categories', [CategoryController::class, 'index'])
 //     ->middleware('permission:view-categories');
 
-
 //     Route::get('/dashboard', fn() => view('dashboard'))
 //     ->middleware('role:admin|editor');
-
 
 //     Route::get('/categories', [CategoryController::class, 'index'])
 //     ->middleware('role_or_permission:admin|editor,view_categories|edit_categories');

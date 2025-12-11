@@ -38,5 +38,22 @@ class AppServiceProvider extends ServiceProvider
             });
         } catch (\Exception $e) {
         }
+
+        View::composer(['partials.admin.header', 'dashboard.includes.partial.nav'], function ($view) {
+            if (auth()->check()) {
+                $query = \App\Models\Activity::with('causer')->latest()->take(5);
+                $user = auth()->user();
+
+                if (!$user->hasRole('super_admin') && $user->farm) {
+                    $farmUserIds = $user->farm->users()->pluck('id');
+                    $query->where('causer_type', \App\Models\User::class)
+                          ->whereIn('causer_id', $farmUserIds);
+                }
+                
+                $view->with('recentActivities', $query->get());
+            } else {
+                $view->with('recentActivities', collect());
+            }
+        });
     }
 }
