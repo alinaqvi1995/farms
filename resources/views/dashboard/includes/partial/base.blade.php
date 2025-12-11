@@ -227,29 +227,17 @@
         }
 
         function setLanguage(lang) {
-            var targetCookie = "/en/" + lang;
-
-            // Get current cookie
-            var match = document.cookie.match(new RegExp('(^| )googtrans=([^;]+)'));
-            var currentCookie = match ? match[2] : null;
-
-            // If already on the requested language, do nothing
-            if (currentCookie && (currentCookie === targetCookie || currentCookie === '"' + targetCookie + '"')) {
-                return;
-            }
-
             // Clear existing cookies
             var host = window.location.hostname;
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + host;
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." + host;
 
-            // Set new cookie
-            document.cookie = "googtrans=" + targetCookie + "; path=/";
-
-            // Force reset of google translate state if possible
-            if (typeof google !== 'undefined' && google.translate && google.translate.TranslateElement) {
-                // sometimes helps to clear internal state, though usually reload is needed
+            if (lang !== 'en') {
+                var targetCookie = "/en/" + lang;
+                document.cookie = "googtrans=" + targetCookie + "; path=/;";
+                document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" +
+                host; // Try setting on domain too to be safe
             }
 
             // Reload with cache busting to force hard refresh behavior
