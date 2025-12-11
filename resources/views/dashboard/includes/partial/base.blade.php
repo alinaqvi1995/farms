@@ -268,9 +268,11 @@
                 document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + host;
             }
 
-            // 3. Reload
+            // 3. Reload with cache busting (Hard Reload)
             setTimeout(function() {
-                location.reload();
+                var url = new URL(window.location.href);
+                url.searchParams.set('lang_t', new Date().getTime()); // Force new request
+                window.location.href = url.toString();
             }, 100);
         }
 
