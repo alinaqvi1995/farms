@@ -227,23 +227,45 @@
         }
 
         function setLanguage(lang) {
-            // Clear existing cookies
-            var host = window.location.hostname;
+            // Clear all variations of the cookie
+            var domain = window.location.hostname;
+            var domains = [
+                domain,
+                "." + domain,
+                domain.replace('www.', ''),
+                "." + domain.replace('www.', '')
+            ];
+
+            var paths = ["/", "/admin", window.location.pathname];
+
+            domains.forEach(function(d) {
+                paths.forEach(function(p) {
+                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=" + p +
+                        "; domain=" + d;
+                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=" + p + ";";
+                });
+            });
+
+            // Also clear generic one just in case
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + host;
-            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." + host;
+
+            // Clear LocalStorage which Google sometimes uses
+            localStorage.removeItem('googtrans');
+            localStorage.removeItem('/en/ur');
+            localStorage.removeItem('/en/en');
 
             if (lang !== 'en') {
                 var targetCookie = "/en/" + lang;
                 document.cookie = "googtrans=" + targetCookie + "; path=/;";
-                document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" +
-                host; // Try setting on domain too to be safe
+                document.cookie = "googtrans=" + targetCookie + "; path=/; domain=" + domain;
             }
 
-            // Reload with cache busting to force hard refresh behavior
-            var url = new URL(window.location.href);
-            url.searchParams.set('lang_t', new Date().getTime());
-            window.location.href = url.toString();
+            // Reload
+            setTimeout(function() {
+                var url = new URL(window.location.href);
+                url.searchParams.set('lang_t', new Date().getTime());
+                window.location.href = url.toString();
+            }, 100);
         }
 
         // Aggressively hide Google Translate Banner
