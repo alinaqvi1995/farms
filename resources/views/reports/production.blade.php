@@ -135,6 +135,9 @@
                                         @endforelse
                                     </tbody>
                                 </table>
+                                <div class="mt-3">
+                                    {{ $productionData->withQueryString()->links() }}
+                                </div>
                             </div>
                         </div>
                     </div>

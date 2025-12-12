@@ -77,7 +77,8 @@
                             <div class="d-flex align-items-end justify-content-between mt-4">
                                 <div>
                                     <h4 class="fs-22 fw-semibold ff-secondary mb-4">{{ number_format($totalSold, 2) }}
-                                        <span class="text-muted fs-13">Liters</span></h4>
+                                        <span class="text-muted fs-13">Liters</span>
+                                    </h4>
                                 </div>
                             </div>
                         </div><!-- end card body -->
@@ -161,6 +162,9 @@
                                         @endforelse
                                     </tbody>
                                 </table>
+                                <div class="mt-3">
+                                    {{ $salesData->withQueryString()->links() }}
+                                </div>
                             </div>
                         </div>
                     </div>
