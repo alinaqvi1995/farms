@@ -13,31 +13,33 @@ class ReportController extends Controller
     /**
      * Milk Production Report
      */
+    /**
+     * Milk Production Report
+     */
     public function milkProduction(Request $request)
     {
         $user = auth()->user();
-        if (! $user->isFarmAdmin() || ! $user->farm) {
-            // For SuperAdmin, we might want to show all or select farm, but requirement was "esp for farm admins"
-            // Lets stick to current farm logic for now, or empty if no farm.
-            if ($user->isSuperAdmin()) {
-                // Future: Allow SuperAdmin to select farm. For now, show empty or all if desired.
-                // Let's return empty to avoid confusion unless we add a farm selector.
-                // OR we can just show all stats for superadmin. Let's redirect or show error for now if strictly for farm admins.
-                // But better, let's just use empty collection if no farm context.
-            }
-        }
-
-        $farmId = $user->farm_id; // Assumes Farm Admin has farm_id or we get it from $user->farm->id
-
+        
         // Defaults
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        
+        // Farm Filter Logic
+        $farms = [];
+        $farmId = null;
+
+        if ($user->isSuperAdmin()) {
+            $farms = \App\Models\Farm::all();
+            $farmId = $request->input('farm_id'); // Optional filter for SuperAdmin
+        } elseif ($user->isFarmAdmin() && $user->farm) {
+            $farmId = $user->farm->id; // Forced filter for FarmAdmin
+        }
 
         // Query
-        $productionQuery = MilkProduction::with('animal');
+        $productionQuery = MilkProduction::with(['animal', 'animal.farm']);
 
-        if ($user->isFarmAdmin() && $user->farm) {
-            $productionQuery->where('farm_id', $user->farm->id);
+        if ($farmId) {
+            $productionQuery->where('farm_id', $farmId);
         }
 
         $productionData = $productionQuery->whereBetween('recorded_at', [$startDate, $endDate])
@@ -46,13 +48,16 @@ class ReportController extends Controller
 
         // Summary Stats
         $totalProduction = $productionData->sum('litres');
+        
+        // Group by date to count active days. 
+        // Note: multiple records per day exist. We want number of distinct days recorded.
         $daysCount = $productionData->groupBy(function ($item) {
             return Carbon::parse($item->recorded_at)->format('Y-m-d');
         })->count();
 
         $avgDailyProduction = $daysCount > 0 ? $totalProduction / $daysCount : 0;
 
-        return view('reports.production', compact('productionData', 'totalProduction', 'avgDailyProduction', 'startDate', 'endDate'));
+        return view('reports.production', compact('productionData', 'totalProduction', 'avgDailyProduction', 'startDate', 'endDate', 'farms', 'farmId'));
     }
 
     /**
@@ -61,18 +66,28 @@ class ReportController extends Controller
     public function milkSales(Request $request)
     {
         $user = auth()->user();
-        $farmId = $user->farm_id;
 
         // Defaults
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
         $vendorId = $request->input('vendor_id');
 
-        // Query
-        $salesQuery = MilkSale::with('vendor');
+        // Farm Filter Logic
+        $farms = [];
+        $filterFarmId = null;
 
-        if ($user->isFarmAdmin() && $user->farm) {
-            $salesQuery->where('farm_id', $user->farm->id);
+        if ($user->isSuperAdmin()) {
+            $farms = \App\Models\Farm::all();
+            $filterFarmId = $request->input('farm_id');
+        } elseif ($user->isFarmAdmin() && $user->farm) {
+            $filterFarmId = $user->farm->id;
+        }
+
+        // Query
+        $salesQuery = MilkSale::with(['vendor', 'farm']);
+
+        if ($filterFarmId) {
+            $salesQuery->where('farm_id', $filterFarmId);
         }
 
         $salesQuery->whereBetween('sold_at', [$startDate.' 00:00:00', $endDate.' 23:59:59']);
@@ -89,8 +104,18 @@ class ReportController extends Controller
         $avgPrice = $totalSold > 0 ? $totalRevenue / $totalSold : 0;
 
         // Unique Vendors for Filter
-        $vendors = $user->isFarmAdmin() && $user->farm ? $user->farm->vendors : Vendor::all();
+        // If Farm Admin, only show their vendors. If Super Admin, show vendors relevant to selection or all.
+        // Simplified: if SuperAdmin and filtered by farm, show that farm's vendors. Else all.
+        if ($user->isFarmAdmin() && $user->farm) {
+            $vendors = $user->farm->vendors;
+        } elseif ($filterFarmId) {
+             // If super admin selected a farm, try to get vendors for that farm
+             $selectedFarm = \App\Models\Farm::find($filterFarmId);
+             $vendors = $selectedFarm ? $selectedFarm->vendors : Vendor::all();
+        } else {
+            $vendors = Vendor::all();
+        }
 
-        return view('reports.sales', compact('salesData', 'totalSold', 'totalRevenue', 'avgPrice', 'vendors', 'startDate', 'endDate', 'vendorId'));
+        return view('reports.sales', compact('salesData', 'totalSold', 'totalRevenue', 'avgPrice', 'vendors', 'startDate', 'endDate', 'vendorId', 'farms', 'filterFarmId'));
     }
 }

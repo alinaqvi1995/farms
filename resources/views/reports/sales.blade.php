@@ -18,16 +18,30 @@
                     <div class="card">
                         <div class="card-body">
                             <form method="GET" action="{{ route('reports.sales') }}" class="row g-3 align-items-end">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label for="start_date" class="form-label">Start Date</label>
                                     <input type="date" class="form-control" id="start_date" name="start_date"
                                         value="{{ $startDate }}">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label for="end_date" class="form-label">End Date</label>
                                     <input type="date" class="form-control" id="end_date" name="end_date"
                                         value="{{ $endDate }}">
                                 </div>
+                                @if (isset($farms) && count($farms) > 0)
+                                    <div class="col-md-3">
+                                        <label for="farm_id" class="form-label">Farm</label>
+                                        <select class="form-select" name="farm_id" id="farm_id">
+                                            <option value="">All Farms</option>
+                                            @foreach ($farms as $farm)
+                                                <option value="{{ $farm->id }}"
+                                                    {{ isset($filterFarmId) && $filterFarmId == $farm->id ? 'selected' : '' }}>
+                                                    {{ $farm->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                                 <div class="col-md-3">
                                     <label for="vendor_id" class="form-label">Vendor</label>
                                     <select class="form-select" name="vendor_id" id="vendor_id">
@@ -39,7 +53,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <button type="submit" class="btn btn-primary">Filter</button>
                                     <a href="{{ route('reports.sales') }}" class="btn btn-secondary">Reset</a>
                                 </div>
@@ -62,8 +76,8 @@
                             </div>
                             <div class="d-flex align-items-end justify-content-between mt-4">
                                 <div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary mb-4">{{ number_format($totalSold, 2) }} <span
-                                            class="text-muted fs-13">Liters</span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary mb-4">{{ number_format($totalSold, 2) }}
+                                        <span class="text-muted fs-13">Liters</span></h4>
                                 </div>
                             </div>
                         </div><!-- end card body -->
@@ -82,7 +96,8 @@
                             <div class="d-flex align-items-end justify-content-between mt-4">
                                 <div>
                                     <h4 class="fs-22 fw-semibold ff-secondary mb-4">{{ number_format($totalRevenue, 2) }}
-                                        <span class="text-muted fs-13">PKR</span></h4>
+                                        <span class="text-muted fs-13">PKR</span>
+                                    </h4>
                                 </div>
                             </div>
                         </div><!-- end card body -->
