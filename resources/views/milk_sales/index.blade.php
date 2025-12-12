@@ -12,6 +12,37 @@
         </button>
     </div>
 
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="mb-2">Today's Production</h6>
+                    <h3 class="mb-0">{{ number_format($todayProductionTotal, 2) }} L</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h6 class="mb-2">Today's Sales</h6>
+                    <h3 class="mb-0">{{ number_format($todaySalesTotal, 2) }} L</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card {{ $remainingStock < 0 ? 'bg-danger' : 'bg-warning text-dark' }} h-100">
+                <div class="card-body">
+                    <h6 class="mb-2">Remaining Stock</h6>
+                    <h3 class="mb-0">{{ number_format($remainingStock, 2) }} L</h3>
+                    @if ($remainingStock < 0)
+                        <small class="text-white-50"><i class="material-icons-outlined fs-6 align-middle">warning</i>
+                            Oversold!</small>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
